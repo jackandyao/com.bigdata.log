@@ -1,0 +1,67 @@
+1 netcasource 监控端口消息 比如talent
+2 avrosource  支持rpc协议传输
+3 httpsource  支持http协议
+4 spooldirectorysource  监控文件目录
+5 execsource  支持命令执行
+
+自定义source:有时候现有的source无法满足我们的需求...我们需要对原有的source进行部分代码修改或者完善
+
+需求:如一个文件是a.log.2014-07-25在hdfs上是存到/a/2014-07-25目录下，
+a.log.2014-07-26存到/a/2014-07-26目录下，就是每个文件对应自己的目录
+
+改写:基于spooldirectorysource相关类进行改写
+
+具体配置:
+主要提供了如下几个设置参数：
+tier1.sources.source1.type=com.besttone.flume.SpoolDirectoryExtSource   #写类的全路径名
+tier1.sources.source1.spoolDir=/opt/logs   #监控的目录
+tier1.sources.source1.splitFileName=true   #是否分隔文件名，并把分割后的内容添加到header中，默认false
+tier1.sources.source1.splitBy=\\.                   #以什么符号分隔，默认是"."分隔
+tier1.sources.source1.splitBaseNameHeader=fileNameSplit  #分割后写入header的key的前缀，比如a.log.2014-07-31,按“."分隔，
+
+则header中有fileNameSplit0=a,fileNameSplit1=log,fileNameSplit2=2014-07-31
+
+接下来我们说说如何部署这个我们扩展的自定义的spooling directory source（基于CM的设置）。
+
+首先，我们把上面三个类打成JAR包：SpoolDirectoryExtSource.jar
+CM的flume插件目录为：/var/lib/flume-ng/plugins.d
+
+然后再你需要使用这个source的agent上的/var/lib/flume-ng/plugins.d目录下面创建SpoolDirectoryExtSource目录以及子目录lib,libext,native,lib是放插件JAR的目录，libext是放插件的依赖JAR的目录，native放使用到的原生库（如果有用到的话）。
+
+我们这里没有使用到其他的依赖，于是就把SpoolDirectoryExtSource.jar放到lib目录下就好了，最终的目录结构：
+
+
+plugins.d/
+plugins.d/SpoolDirectoryExtSource/
+plugins.d/SpoolDirectoryExtSource/lib/SpoolDirectoryExtSource.jar
+plugins.d/SpoolDirectoryExtSource/libext/
+plugins.d/SpoolDirectoryExtSource/native/
+重新启动flume agent,flume就会自动装载我们的插件，这样在flume.conf中就可以使用全路径类名配置type属性了。
+
+
+最终flume.conf配置如下:
+tier1.sources=source1
+tier1.channels=channel1
+tier1.sinks=sink1
+tier1.sources.source1.type=com.besttone.flume.SpoolDirectoryExtSource
+tier1.sources.source1.spoolDir=/opt/logs
+tier1.sources.source1.splitFileName=true
+tier1.sources.source1.splitBy=\\.
+tier1.sources.source1.splitBaseNameHeader=fileNameSplit
+tier1.sources.source1.channels=channel1
+tier1.sinks.sink1.type=hdfs
+tier1.sinks.sink1.channel=channel1
+tier1.sinks.sink1.hdfs.path=hdfs://master68:8020/flume/events/%{fileNameSplit0}/%{fileNameSplit2}
+tier1.sinks.sink1.hdfs.round=true
+tier1.sinks.sink1.hdfs.roundValue=10
+tier1.sinks.sink1.hdfs.roundUnit=minute
+tier1.sinks.sink1.hdfs.fileType=DataStream
+tier1.sinks.sink1.hdfs.writeFormat=Text
+tier1.sinks.sink1.hdfs.rollInterval=0
+tier1.sinks.sink1.hdfs.rollSize=10240
+tier1.sinks.sink1.hdfs.rollCount=0
+tier1.sinks.sink1.hdfs.idleTimeout=60
+tier1.channels.channel1.type=memory
+tier1.channels.channel1.capacity=10000
+tier1.channels.channel1.transactionCapacity=1000
+tier1.channels.channel1.keep-alive=30

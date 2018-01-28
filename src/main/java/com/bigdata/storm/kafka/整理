@@ -1,0 +1,9 @@
+storm-kafka整合的核心对象:
+1 BrokerHosts:提供获取保存kafka消息的集群服务器信息的接口
+2 ZkHosts:上面接口的实现:通过动态方式 也就是直接通过zk集群获取kafka消息
+3 StaticHosts:上面接口的实现:通过静态方式 也就是直接手动指定消息分区等属性和服务器
+4 GlobalPartitionInformation:添加分区对象的实例
+5 Broker:一台服务器的实例 通过host和port实例化
+6 SpoutConfig:实例化kafka的基本属性
+7 KafkaSpout:实现storm从kafka读取消息
+8 KafkaBolt:消费kafka获取到的消息

@@ -1,0 +1,9 @@
+基于storm-hbase整合(1.0)的核心对象功能阐述:
+
+1 HBaseMapper:提供返回行键和对应的列的接口
+2 SimpleHBaseMapper:上面的实现之一
+3 HBaseBolt:具体实现storm和hbase的bolt
+4 HBaseValueMapper:通过查询hbase查询值,之后把值传给storm当成元祖进行发射
+5 HBaseProjectionCriteria:提供根据条件查询且返回hbase中哪些列
+6 HBaseLookupBolt:提供查询hbase的值的一个bolt,同时可以结合查询函数使用(criteria)
+7 HBaseState:通过它可以设置hbase表的一些基本属性

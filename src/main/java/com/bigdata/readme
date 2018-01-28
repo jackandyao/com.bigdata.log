@@ -1,0 +1,10 @@
+模拟:实现一个完整的大数据整合实例（用户访问日志的实时分析和在线分析）
+步骤:
+1 java程序循环向文件里面写入内容
+2 flume按行读取文件内容
+3 flume行内容发送给storm
+4 storm解析数据之后 写入到redis和hbase
+5 storm数据同时写入到hive
+6 hive离线分析hdfs文件
+
+

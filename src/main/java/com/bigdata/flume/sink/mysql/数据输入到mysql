@@ -1,0 +1,10 @@
+ÅäÖÃÈçÏÂ:
+ 
+agent.sinks.mysqlSink.type = com.iteblog.flume.MysqlSink
+agent.sinks.mysqlSink.hostname=localhost
+agent.sinks.mysqlSink.port=3306
+agent.sinks.mysqlSink.databaseName=ngmonitor
+agent.sinks.mysqlSink.tableName=mysqltest
+agent.sinks.mysqlSink.user=root
+agent.sinks.mysqlSink.password=123456
+agent.sinks.mysqlSink.channel = c1

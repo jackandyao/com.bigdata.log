@@ -1,0 +1,26 @@
+应用场景：需要实时收集多台服务器的nginx日志到一台机器。收集完成结果存放需要按天生成文件夹，
+按每5分钟生成文件，比如2012年12月29日12点26分的日志，需要放到/data/log/20121229/log-1225-对应的文件中
+。自己实现了类似flume-og和flume-ng的hdfs-sink的文件sink。
+
+
+使用文件配置如下:
+agent.sources = source
+agent.channels = channel
+agent.sinks = sink
+
+agent.sources.source.type = avro
+agent.sources.source.bind = 192.168.0.100
+agent.sources.source.port = 44444
+agent.sources.source.channels = channel
+
+agent.sinks.sink.type = org.apache.flume.sink.FileSink
+agent.sinks.sink.file.path = /data/log/%{dayStr}
+agent.sinks.sink.file.filePrefix = log-%{hourStr}%{minStr}-
+agent.sinks.sink.file.txnEventMax = 10000
+agent.sinks.sink.file.maxOpenFiles = 5
+agent.sinks.sink.channel = channel
+
+agent.channels.channel.type = memory
+agent.channels.channel.capacity = 100000
+agent.channels.channel.transactionCapacity = 100000
+agent.channels.channel.keep-alive = 60

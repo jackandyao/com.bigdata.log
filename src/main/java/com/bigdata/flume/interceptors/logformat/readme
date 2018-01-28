@@ -1,0 +1,46 @@
+续上篇，由于filesink中需要使用/data/log/%{dayStr}/log-%{hourStr}%{minStr}-这样文件格式的
+，为了使file-sink能使用%{dayStr}这样的标签，需要在数据传输过程中，给event的header中添加对应的键值对。
+在flume-ng中提供了很方便的方式：Interceptor
+以下为实现的interceptor，首先使用正则表达式匹配nginx日志，如何匹配成功，则获取匹配到的数据，
+并且对url中的参数进行处理，最后所有日志信息都被存储在Map中。根据配置文件中需要输出的键找到对应的值
+，按照顺序输出为csv格式的行。
+原始日志格式：
+112.245.239.72 - - [29/Dec/2012:15:00:00 +0800]
+ "GET /p.gif?a=1&b=2 HTTP/1.1" 200 0 "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4
+.0; 4399Box.1357; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; AskTbPTV2/5.9.1.14019; 4399Box.1357)"
+
+最终结果：
+1,2
+
+
+
+配置文件信息:
+gent.sources = source
+agent.channels = channel
+agent.sinks = sink
+
+agent.sources.source.type = exec
+#agent.sources.source.command = tail -n +0 -F /data/tmp/accesspvpb_2012-11-18.log
+agent.sources.source.command = cat /opt/nginx/logs/vvaccess_log_pipe
+agent.sources.source.interceptors = logformat
+
+agent.sources.source.interceptors.logformat.type = org.apache.flume.interceptor.LogFormatInterceptor$Builder
+agent.sources.source.interceptors.logformat.confpath = /usr/programs/flume/conf/logformat_vv.properties
+agent.sources.source.interceptors.logformat.dynamicprop = true
+agent.sources.source.interceptors.logformat.hostname = vv111
+agent.sources.source.interceptors.logformat.prop.monitor.rollInterval = 100000
+# The channel can be defined as follows.
+agent.sources.source.channels = channel
+
+
+agent.sinks.sink.type = avro
+agent.sinks.sink.hostname = 192.168.0.100
+agent.sinks.sink.port = 44444
+agent.sinks.sink.channel = channel
+
+# Each channel's type is defined.
+agent.channels.channel.type = file
+agent.channels.channel.checkpointDir = /data/tmpc/checkpoint
+agent.channels.channel.dataDirs = /data/tmpc/data
+agent.channels.channel.transactionCapacity = 15000
+

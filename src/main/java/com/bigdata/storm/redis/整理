@@ -1,0 +1,18 @@
+storm-redis整合核心对象
+1 RedisLookupMapper:把reids的数据转换成storm的tuple格式
+2 RedisStoreMapper:把storm的tuple格式的数据转换为redis的数据格式
+3 JedisPoolConfig:redis单机服务器配置
+4 JedisClusterConfig:redis集群服务器配置
+5 RedisLookupBolt:提供把redis中的数据查询出来发送到storm中
+6 RedisStoreBolt:提供把strom中的数据存储到redis中
+
+7 RedisState:执行trident保存非map结构的数据到redis中...redis是单机器
+7 RedisMapState:执行trident保存是map结构的数据到redis中...redis是单机器
+
+8 RedisClusterMapState:同上 执行的是集群
+8 RedisClusterState: 同上 执行的是集群
+
+9 TridentState:trident实行的接口
+
+10 RedisStateUpdater:更新状态
+11 RedisDataTypeDescription:redis数据格式类型描述

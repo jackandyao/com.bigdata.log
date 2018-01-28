@@ -1,0 +1,9 @@
+storm-jdbc整合的核心对象:
+1 JdbcMapper SimpleJdbcMapper:把storm中的数据转换为jdbc格式的数据
+2 JdbcLookupMapper SimpleJdbcLookupMapper:把jdbc的数据格式转换为storm中的tuple
+3 ConnectionProvider HikariCPConnectionProvider:连接jdbc的connection
+4 JdbcClient:执行jdbc的sql
+5 JdbcLookupBolt：从数据库查询数据发送到storm
+6 JdbcInsertBolt:把storm的数据插入到数据库
+7 Column:数据库的列
+8 JdbcState:实现trident
